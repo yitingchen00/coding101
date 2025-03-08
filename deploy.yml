@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages  # 工作流的名称
+
+on:
+  push:
+    branches:
+      - main  # 触发工作流的分支（通常是 main 或 master）
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # 运行环境（最新的 Ubuntu 系统）
+
+    steps:
+      # 第一步：检出代码
+      - name: Checkout repository
+        uses: actions/checkout@v2  # 使用官方的 checkout 操作
+
+      # 第二步：设置 Node.js 环境（如果需要）
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # 指定 Node.js 版本
+
+      # 第三步：安装依赖（如果需要）
+      - name: Install dependencies
+        run: npm install  # 安装 npm 依赖
+
+      # 第四步：生成配置文件（例如包含 PAT 的 JSON 文件）
+      - name: Generate config file
+        run: |
+          echo '{
+            "token": "${{ secrets.GITHUB_PAT }}"
+          }' > config.json
+
+      # 第五步：构建项目（如果需要）
+      - name: Build project
+        run: npm run build  # 运行构建命令
+
+      # 第六步：部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3  # 使用第三方部署操作
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 提供的 token
+          publish_dir: ./dist  # 部署的目录（根据项目调整）
